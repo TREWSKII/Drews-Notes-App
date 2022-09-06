@@ -2,6 +2,7 @@ const { json } = require("body-parser");
 const fs = require("fs");
 const util = require("util");
 const uuid = require("uuid");
+const { resourceLimits } = require("worker_threads");
 
 const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
@@ -19,6 +20,18 @@ class Store {
     const notes = await this.readFile();
       return JSON.parse(notes);
   }
+
+addNote(note){
+    note.id = uuid.v4();
+    return this.getNotes().then(retrievedNotes => {
+        retrievedNotes.push(note)
+        return retrievedNotes
+    }).then(updatedNotes => {
+        return this.writeFile(updatedNotes)
+    }).then(() => {
+        return note;
+    })
+}
 
 }
 
